@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# settings
+gedirect=/usr/local/bin/gedirect
+config=/usr/local/etc/gedirect.conf
+
+start()
+{
+    if [ ! -e "$config" ]; then
+        echo "not found config file: $config"
+        return 1
+    fi
+    . $config
+
+    server=$(/usr/bin/grep -F '"server"' $ss_config | /usr/bin/awk -F '"' '{print $4}')
+    local_port=$(/usr/bin/grep -F '"local_port"' $ss_config | /usr/bin/awk -F ':' '{print $2}' | /usr/bin/awk -F ',' '{print $1}')
+    if [ "$server" = "" ] || [ "$local_port" = "" ]; then
+        echo "config error"
+        return 1
+    fi
+
+    $gedirect init $server $local_port
+    for cli in $client_list; do
+        $gedirect enable $cli
+    done
+    return 0
+}
+
+stop()
+{
+    if [ ! -e "$config" ]; then
+        echo "not found config file: $config"
+        return 1
+    fi
+    . $config
+
+    for cli in $client_list; do
+        $gedirect disable $cli
+    done
+    $gedirect clear
+    return 0
+}
+
+# usage
+USAGE="Usage: $(basename $0) start|stop|restart|reload"
+
+case $1 in
+    start|restart|reload)
+        stop
+        start
+        ;;
+
+    stop)
+        stop
+        ;;
+
+    *)
+        echo "$USAGE"
+        ;;
+esac

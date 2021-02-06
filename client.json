@@ -1,0 +1,11 @@
+{
+    "server":"<服务器IP地址>",
+    "server_port":<服务器端口>,
+    "mode":"tcp_and_udp",
+    "local_address": "0.0.0.0",
+    "local_port":1080,
+    "password":"<密码>",
+    "timeout":600,
+    "method":"aes-256-gcm", // 注意修改与服务一致
+    "nameserver":"8.8.4.4"
+}
