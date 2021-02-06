@@ -39,6 +39,17 @@ init()
     /usr/sbin/iptables -t mangle -A GEDIRECT -p udp -j TPROXY --on-port $2 --tproxy-mark 0x56/0x56
 }
 
+clear()
+{
+    # remove iptables rules
+    /usr/sbin/iptables -t nat -F GEDIRECT
+    /usr/sbin/iptables -t nat -X GEDIRECT 2>/dev/null
+    /usr/sbin/iptables -t mangle -F GEDIRECT
+    /usr/sbin/iptables -t mangle -X GEDIRECT 2>/dev/null
+    # remove fwmark
+    /usr/sbin/ip rule del fwmark 0x56/0x56 table 100 2>/dev/null
+    /usr/sbin/ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
+}
 
 enable()
 {
@@ -50,18 +61,6 @@ disable()
 {
     /usr/sbin/iptables -t nat -D PREROUTING -s $1 -p tcp -j GEDIRECT 2>/dev/null
     /usr/sbin/iptables -t mangle -D PREROUTING -s $1 -p udp -j GEDIRECT 2>/dev/null
-}
-
-clear()
-{
-    # remove iptables rules
-    /usr/sbin/iptables -t nat -F GEDIRECT
-    /usr/sbin/iptables -t nat -X GEDIRECT 2>/dev/null
-    /usr/sbin/iptables -t mangle -F GEDIRECT
-    /usr/sbin/iptables -t mangle -X GEDIRECT 2>/dev/null
-    # remove fwmark
-    /usr/sbin/ip rule del fwmark 0x56/0x56 table 100 2>/dev/null
-    /usr/sbin/ip route del local 0.0.0.0/0 dev lo table 100 2>/dev/null
 }
 
 # usage
